@@ -1,9 +1,27 @@
 const { request } = require('express');
 
 express = require('express');
-app = express();
+const cors = require('cors')
+const morgan = require('morgan');
 
+app = express()
+app.use(cors())
 app.use(express.json());
+
+app.use(morgan((tokens, req, res) => {
+    const requestBody = JSON.stringify(req.body);
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res),'ms',
+        requestBody
+      ].join(' ')
+  }));
+  
+
+
 
 let persons = [
     { 
@@ -28,6 +46,7 @@ let persons = [
     }
 ]
 
+
 const generateId = () => {
     let maxId = persons.length > 0 ? Math.max(...persons.map(person => person.id)) : 0;
     return maxId + 1;
@@ -48,7 +67,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 
-  app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id);
     const person = persons.find(person => person.id === id);
     
@@ -58,6 +77,22 @@ app.get('/api/persons', (request, response) => {
         response.status(404).end();
     }
 })
+
+
+app.put('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id);
+    const person = persons.find(person => person.id === id);
+  
+    if (person) {
+      person.number = request.body.number;
+      response.json(person);
+    } else {
+      response.status(404).end();
+    }
+  });
+  
+  
+  
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id);
@@ -88,7 +123,7 @@ app.post('/api/persons', (request, response) => {
 
     persons = persons.concat(person);
 
-    response.json(persons);
+    response.json(person);
 
 })
 
