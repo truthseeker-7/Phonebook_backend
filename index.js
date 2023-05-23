@@ -80,15 +80,7 @@ app.get('/api/persons/:id', (request, response) => {
 
 
 app.put('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
-    const person = persons.find(person => person.id === id);
-  
-    if (person) {
-      person.number = request.body.number;
-      response.json(person);
-    } else {
-      response.status(404).end();
-    }
+    console.log(request.body);
   });
   
   
@@ -130,7 +122,7 @@ app.post('/api/persons', (request, response) => {
 
 
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () =>{
     console.log(`Server running on port ${PORT}`);
 });
